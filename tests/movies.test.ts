@@ -6,6 +6,7 @@ import loadMovies from '../src/services/movies-service';
 import { CsvMovie } from '../src/protocols/csv-movie';
 import { loadCsvData } from './helpers/load-csv-data';
 import { extractWinnersFromCsv } from './helpers/extract-winners-from-csv';
+import { sortIntervals } from './helpers/sort-intervals';
 
 describe('Movies API Tests', () => {
   let api: any;
@@ -56,8 +57,16 @@ describe('Movies API Tests', () => {
   test('API response should match CSV data', async () => {
     const response = await request(app).get('/api/awards/intervals');
     expect(response.status).toBe(200);
+    
     const apiWinners = response.body;
     const csvWinners = extractWinnersFromCsv(csvData);
-    expect(apiWinners).toEqual(csvWinners);
+
+    sortIntervals(apiWinners.min);
+    sortIntervals(apiWinners.max);
+
+    sortIntervals(csvWinners.min);
+    sortIntervals(csvWinners.max);
+
+    expect(apiWinners).toStrictEqual(csvWinners);
   });
 });
